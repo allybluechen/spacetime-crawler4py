@@ -7,9 +7,9 @@ from crawler import Crawler
 
 
 def main(config_file, restart):
-    cparser = ConfigParser()
-    cparser.read(config_file)
-    config = Config(cparser)
+    c_parser = ConfigParser()
+    c_parser.read(config_file)
+    config = Config(c_parser)
     config.cache_server = get_cache_server(config, restart)
     crawler = Crawler(config, restart)
     crawler.start()
