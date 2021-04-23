@@ -1,5 +1,7 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup as bs
+
 
 
 def scraper(url, resp):
@@ -10,10 +12,24 @@ def scraper(url, resp):
 def extract_next_links(url, resp):
     # Implementation required.
     # Checks for valid response
-    if resp.status >= 300:
-        return list()
+    # if resp.status >= 300:
+    #     return list()
+    
+    # urlList = []
 
     urlList = []
+    parsedUrl = urlparse(url)
+    
+    if(200 <= resp.status <= 202):
+        #get the raw_response content and parse it into HTML using beautifulsoup
+        html = bs(resp.raw_response.content, "html.parser")
+
+        # find all links from the html and append it to the urlList list
+        for link in html.findAll('a', attrs={'href': re.compile("^(http|https)://")}):
+            urlList.append(link.get('href'))
+        
+        # go through the link and take out the uncessary links ("ics.uci.edu", ...)
+
 
     return list()
 
