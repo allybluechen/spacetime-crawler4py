@@ -9,6 +9,12 @@ def scraper(url, resp):
 
 def extract_next_links(url, resp):
     # Implementation required.
+    # Checks for valid response
+    if resp.status >= 300:
+        return list()
+
+    urlList = []
+
     return list()
 
 
@@ -30,3 +36,26 @@ def is_valid(url):
     except TypeError:
         print("TypeError for ", parsed)
         raise
+
+
+# Oscars implementation, feel free to change
+def tokenize(text_file_path: str):
+    tokens = []
+    with open(text_file_path, 'r') as file:
+        for line in file:
+            for word in line.split():
+                new_word = ""
+
+                for character in word:
+                    if character.isalnum():
+                        new_word += character
+                    else:
+                        if new_word != "":
+                            new_word = new_word.lower()
+                            tokens.append(new_word)
+                            new_word = "";
+                if new_word != "":
+                    new_word = new_word.lower()
+                    tokens.append(new_word)
+    file.close()
+    return tokens
