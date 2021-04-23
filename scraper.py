@@ -10,44 +10,45 @@ def scraper(url, resp):
 
 
 def extract_next_links(url, resp):
-    # Implementation required.
-    # Checks for valid response
-    # if resp.status >= 300:
-    #     return list()
-    
-    # urlList = []
-
     urlList = []
     parsedUrl = urlparse(url)
-    
-    if(200 <= resp.status <= 202):
+    if(200 <= resp.status <= 202 and is_valid(url)):
         #get the raw_response content and parse it into HTML using beautifulsoup
         html = bs(resp.raw_response.content, "html.parser")
+        if(not html.find('embed', attrs={'type': "application/pdf"})):
+            # find all links from the html and append it to the urlList list
+            for link in html.findAll('a', attrs={'href': re.compile("^(http|https)://")}):
+                urlList.append(link.get('href'))
+    if(400 <= resp.status <= 599 and is_valid(url)):
+        pass
 
-        # find all links from the html and append it to the urlList list
-        for link in html.findAll('a', attrs={'href': re.compile("^(http|https)://")}):
-            urlList.append(link.get('href'))
-        
-        # go through the link and take out the uncessary links ("ics.uci.edu", ...)
-
-
-    return list()
+    return urlList
 
 
 def is_valid(url):
+    wanted = ['ics.uci.edu', 'cs.uci.edu','informatics.uci.edu','stat.uci.edu',
+    'today.uci.edu/department/information_computer_sciences']
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
-            + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+        for validDomain in wanted:
+            # remove fragment
+            if(parsed.fragment != ''):
+                return False
+            if()
+            if validDomain in url:
+                return not re.match(
+                    r".*\.(css|js|bmp|gif|jpe?g|ico"
+                    + r"|png|tiff?|mid|mp2|mp3|mp4"
+                    + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+                    + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+                    + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+                    + r"|epub|dll|cnf|tgz|sha1"
+                    + r"|thmx|mso|arff|rtf|jar|csv"
+                    + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+        return False
+        
 
     except TypeError:
         print("TypeError for ", parsed)
