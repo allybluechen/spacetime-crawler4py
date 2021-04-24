@@ -1,16 +1,13 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup as bs
-from report import Report
 
-r = Report()
-
-def scraper(url, resp):
-    links = extract_next_links(url, resp)
+def scraper(url, resp, report):
+    links = extract_next_links(url, resp, report)
     return [link for link in links if is_valid(link)]
 
 
-def extract_next_links(url, resp):
+def extract_next_links(url, resp, report):
     urlList = []
     subdomains = []
     parsed = urlparse(url)
@@ -22,7 +19,9 @@ def extract_next_links(url, resp):
         #get the raw_response content and parse it into HTML using beautifulsoup
         html = bs(resp.raw_response.content, "html.parser")
         #skip if the url is a forum
-        if(html.find("embed", {"type": "application/pdf"})):
+        if(html.find(type="application/pdf")):
+            return []
+        if(html.find(id="comments")):
             return []
         if(not html.find('embed', attrs={'type': "application/pdf"})):
             # find all links from the html and append it to the urlList list
@@ -30,23 +29,19 @@ def extract_next_links(url, resp):
                 urlList.append(link.get('href'))
                 
         words = tokenize(html.getText())
-        if maxwords < len(words):
-            maxwords = len(words)
-            longestpage = url
+        # passing tokenized words and url to report.py
+        report.mostWords(url, words)
+        # pass tokenized words list to countWords()
+        report.countWords(words)
     if(400 <= resp.status <= 599 and is_valid(url)):
         pass
 
     # for report.py
     if "ics.uci.edu" in parsed.netloc: #4   
         if parsed.netloc != "ics.uci.edu" and parsed.netloc != "www.ics.uci.edu":
-            r.incrementSubdomainCount(url)
-    
+            report.incrementSubdomainCount(url)
 
-    print("max words on one page:", maxwords)
-    print("longest page:", longestpage) #2 
-    print("50 most common words:", output(wordFreq(words))) #3 
-    print("subdomains:", output_alpha(wordFreq(subdomains))) #4 
-
+    report.print()
     return urlList
 
 
@@ -82,24 +77,38 @@ def is_valid(url):
         
 
     except TypeError:
-        print("TypeError for ", parsed)
+      print("TypeError for ", parsed)
       raise
 
 # Ally's tokenize, wordfreq, and output functions 
 def tokenize(contents):
-    tokens = re.findall("[\w']+", contents)
+    tokens = []
+    for word in contents.split():
+      new_word = ""
+
+      for character in word:
+          if character.isalnum():
+              new_word += character
+          else:
+              if new_word != "":
+                  new_word = new_word.lower()
+                  tokens.append(new_word)
+                  new_word = ""
+      if new_word != "":
+          new_word = new_word.lower()
+          tokens.append(new_word)
     return tokens
 
-def wordFreq(l):
-    freq = []
-    for w in l:
-        freq.append(l.count(w))
-    return list(set(zip(l,freq)))
+# def wordFreq(l):
+#     freq = []
+#     for w in l:
+#         freq.append(l.count(w))
+#     return list(set(zip(l,freq)))
 
 
-def output_alpha(freq):
-    l = []
-    freq.sort()
-    for i in freq:
-        l.append(str(i[0] + ", " + str(i[1])))
-    return l
+# def output_alpha(freq):
+#     l = []
+#     freq.sort()
+#     for i in freq:
+#         l.append(str(i[0] + ", " + str(i[1])))
+#     return l

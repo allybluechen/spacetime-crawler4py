@@ -83,9 +83,15 @@ class Report:
       if word.lower() not in self.stopwords:
         self.wordCounts[word.lower()] = 1 if word.lower() not in self.wordCounts else self.wordCounts[word.lower()] + 1
   
-  def mostWords(self, wordList):
+  def mostWords(self, url, wordList):
     if len(wordList) > self.longestPage["COUNT"]:
-      self.longestPage["COUNT"] = len(wordList)  
+      self.longestPage["URL"] = url
+      self.longestPage["COUNT"] = len(wordList)
+
+  def print(self):
+    print("SUBDOMAINS: ", self.subdomains)
+    print("WORD COUNTS: ", self.wordCounts)
+    print("LONGEST PAGE: ", self.longestPage)  
   
   
     
