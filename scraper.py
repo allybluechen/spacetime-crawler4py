@@ -41,7 +41,6 @@ def extract_next_links(url, resp, report):
         if parsed.netloc != "ics.uci.edu" and parsed.netloc != "www.ics.uci.edu":
             report.incrementSubdomainCount(url)
 
-    report.print()
     return urlList
 
 
