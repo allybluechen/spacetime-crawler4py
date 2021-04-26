@@ -92,6 +92,23 @@ class Report:
     print("SUBDOMAINS: ", self.subdomains)
     print("WORD COUNTS: ", self.wordCounts)
     print("LONGEST PAGE: ", self.longestPage)  
+
+  def print_tofile(self):
+    sortedCounts = sorted(self.wordCounts.items(), key = lambda item : item[1], reverse = True)
+    f = open("report.txt","w")
+    f.write("SUBDOMAIN: ")
+    for i in self.subdomains:
+      f.write('%s\n' % self.subdomains)
+    f.write("WORD COUNTS: ")
+    i = 0
+    for word in sortedCounts:
+      i += 1
+      if i >= 50:
+        break
+      # eachCount = ""
+      # eachCount += word
+      f.write('%s => %s, ' % (word[0],word[1]))
+    f.write("\nLONGEST PAGE: ")
+    f.write('%s:%s\n' % (self.longestPage['URL'],self.longestPage['COUNT']))
+    f.close()
   
-  
-    
